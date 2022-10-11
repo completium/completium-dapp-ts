@@ -1,0 +1,20 @@
+archetype my_contract
+
+variable n : nat = 0
+variable bm : big_map<nat, string> = [(2, "mystr")]
+
+entry set_n(i : nat) {
+  n := i
+}
+
+entry size(i : string) {
+  n := length(i)
+}
+
+getter tzip4_get_n() : nat {
+  return n
+}
+
+view get_n() : nat {
+  return n
+}
