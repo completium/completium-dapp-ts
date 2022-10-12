@@ -1,16 +1,19 @@
 import { Address, CallParameter } from '@completium/archetype-ts-types';
-import { TezosToolkit } from '@taquito/taquito';
+import { Context, LegacyWalletProvider, Protocols, TezosToolkit } from '@taquito/taquito';
+import { InMemorySigner } from '@taquito/signer';
 import { call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_storage, set_binder_tezos_toolkit } from '../src';
 
 const assert = require('assert');
 
 const endpoint = 'https://kathmandunet.ecadinfra.com';
 const address = 'KT1S2Vya2BvDGyQZRUe4d6zashzBNnN5iwh1';
+const signer = new InMemorySigner('edskRgfNYuKgoMLobBPBh5GoSXxdnzjsqqTymQRoAALCzz94zxq5DR9h41NmFZkCWAzWZ9NdweXv8BD6hKEJmK9UYWcxK4pnct')
+const context : Context =  new Context(endpoint, signer, Protocols.PtKathman)
 const tezos : TezosToolkit = new TezosToolkit(endpoint);
 
 describe('DApp', () => {
   it ('init', () => {
-    // tezos.setWalletProvider();
+    tezos.setWalletProvider(new LegacyWalletProvider(context));
     set_binder_tezos_toolkit(tezos);
   })
 
@@ -25,7 +28,7 @@ describe('DApp', () => {
   })
 
   it('exec_view', async () => {
-    const res = await exec_view(new Address(address), "", {prim: "Unit"}, {});
+    const res = await exec_view(new Address(address), "get_n", {prim: "Unit"}, {});
     // console.log(`exec_view: ${res}`);
     assert(res.toNumber() == 0, "Invalid value")
   })

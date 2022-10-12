@@ -1,7 +1,7 @@
 import { Address, CallParameter, Micheline, MichelineType, Tez } from "@completium/archetype-ts-types";
 import { emitMicheline, MichelsonData, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
-import { OpKind, ParamsWithKind, TezosToolkit } from '@taquito/taquito';
+import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import { encodeExpr } from '@taquito/utils';
 
 // global toolkit
@@ -20,7 +20,7 @@ export const get_call_param = async (addr: string, entry: string, arg: Micheline
   return {
     destination: new Address(addr),
     amount: new Tez(p.amount ? p.amount.toString() : 0, "mutez"),
-    fee: new Tez(p.fee ? p.fee.toString() : 0, "mutez"),
+    fee: p.fee ? new Tez(p.fee.toString(), "mutez") : undefined,
     entrypoint: entry,
     arg: arg
   }
@@ -94,7 +94,7 @@ export const exec_view = async (address: Address, entry: string, arg: Micheline,
 }
 
 export const exec_batch = async (callParameters: CallParameter[]): Promise<any> => {
-  const paramsWithKinds: ParamsWithKind[] = callParameters.map(x => {
+  const paramsWithKinds : WalletParamsWithKind[] = callParameters.map(x => {
     return {
       kind: OpKind.TRANSACTION,
       to: x.destination.toString(),
@@ -107,16 +107,16 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<any> 
       mutez: true
     }
   });
-  const batch = tezos?.contract.batch(paramsWithKinds);
+  const batch = tezos?.wallet.batch(paramsWithKinds);
   if (batch === undefined) {
     throw new Error("Error: Invalid batch");
   }
   return new Promise(async (resolve, reject) => {
     try {
       const op = await batch.send();
-      // console.log(`Waiting for ${op.hash} to be confirmed ...`);
+      // console.log(`Waiting for ${op.opHash} to be confirmed ...`);
       await op.confirmation(1);
-      // console.log(`${op.hash} confirmed ...`);
+      // console.log(`${op.opHash} confirmed ...`);
       resolve(op)
     } catch (error) {
       reject(error);
