@@ -73,9 +73,22 @@ export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: M
   const d: MichelsonData = toMichelsonData(data);
   const input = packDataBytes(d, type_key).bytes;
   const expr = encodeExpr(input);
-  const res = await tezos?.rpc.getBigMapExpr(id.toString(), expr);
-  const schema = new Schema(type_value);
-  return schema.Execute(res);
+
+  return new Promise(async (resolve, reject) => {
+    tezos?.rpc.getBigMapExpr(id.toString(), expr)
+      .then(res => {
+        const schema = new Schema(type_value);
+        const data = schema.Execute(res);
+        resolve(data)
+      })
+      .catch(x => {
+        if (x.status == 404) {
+          resolve(undefined)
+        } else {
+          reject(x)
+        }
+      })
+  });
 }
 
 export const exec_view = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<any> => {
@@ -91,7 +104,7 @@ export const exec_view = async (address: Address, entry: string, arg: Micheline,
 }
 
 export const exec_batch = async (callParameters: CallParameter[]): Promise<any> => {
-  const paramsWithKinds : WalletParamsWithKind[] = callParameters.map(x => {
+  const paramsWithKinds: WalletParamsWithKind[] = callParameters.map(x => {
     return {
       kind: OpKind.TRANSACTION,
       to: x.destination.toString(),
@@ -121,7 +134,7 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<any> 
   });
 }
 
-export const deploy = (path : string, parameters : any, params : any) : Promise<any> => {
+export const deploy = (path: string, parameters: any, params: any): Promise<any> => {
   throw new Error("@completium/dapp-ts: 'deploy' not implemented.")
 }
 

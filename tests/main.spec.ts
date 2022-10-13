@@ -51,4 +51,10 @@ describe('DApp', () => {
     assert(value == "mystr", "Invalid value")
   })
 
+  it('get_big_map_value with key not found', async () => {
+    const value = await get_big_map_value(BigInt(80870), {int: "3"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
+    // console.log(`value: ${value}`);
+    assert(value === undefined, "Invalid value")
+  })
+
 })
