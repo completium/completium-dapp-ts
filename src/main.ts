@@ -123,3 +123,8 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<any> 
     }
   });
 }
+
+export const deploy = (path : string, parameters : any, params : any) : Promise<any> => {
+  throw new Error("@completium/dapp-ts: 'deploy' not implemented.")
+}
+
