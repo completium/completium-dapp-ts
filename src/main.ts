@@ -14,6 +14,7 @@ export const set_binder_tezos_toolkit = (ttk: TezosToolkit) => {
 export interface Parameters {
   amount?: Tez
   fee?: Tez
+  as?: Address
 }
 
 export const get_call_param = async (addr: string, entry: string, arg: Micheline, p: Parameters): Promise<CallParameter> => {
@@ -78,17 +79,13 @@ export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: M
 }
 
 export const exec_view = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<any> => {
-  const user_pkh = await tezos?.wallet.pkh();
-  if (user_pkh === undefined) {
-    throw new Error("No wallet pkh");
-  }
-  const c = await tezos?.wallet.at(address.toString());
+  const c = await tezos?.contract.at(address.toString());
   if (c === undefined) {
     throw new Error(`Contract ${address.toString()} not found`);
   }
-
   const input = emitMicheline(arg);
   const a = c.contractViews[entry](input);
+  const user_pkh = params.as ? params.as.toString() : 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb';
   const b = await a.executeView({ viewCaller: user_pkh })
   return b
 }
