@@ -51,8 +51,8 @@ export const call = async (addr: string, name: string, arg: Micheline, p: Parame
   })
 }
 
-export const get_balance = async (addr: string): Promise<Tez> => {
-  const res = await tezos?.tz.getBalance(addr);
+export const get_balance = async (addr: Address): Promise<Tez> => {
+  const res = await tezos?.tz.getBalance(addr.toString());
   if (res === undefined) {
     throw new Error("Error: get_balance");
   }
@@ -91,10 +91,10 @@ export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: M
   });
 }
 
-export const exec_view = async (address: string, entry: string, arg: Micheline, params: Parameters): Promise<any> => {
-  const c = await tezos?.contract.at(address);
+export const exec_view = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<any> => {
+  const c = await tezos?.contract.at(address.toString());
   if (c === undefined) {
-    throw new Error(`Contract ${address} not found`);
+    throw new Error(`Contract ${address.toString()} not found`);
   }
   const input = emitMicheline(arg);
   const a = c.contractViews[entry](input);

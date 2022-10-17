@@ -28,7 +28,7 @@ describe('DApp', () => {
   })
 
   it('exec_view', async () => {
-    const res = await exec_view(address, "get_n", {prim: "Unit"}, {});
+    const res = await exec_view(new Address(address), "get_n", {prim: "Unit"}, {});
     // console.log(`exec_view: ${res}`);
     assert(res.toNumber() == 0, "Invalid value")
   })
@@ -40,7 +40,7 @@ describe('DApp', () => {
   })
 
   it('get_balance', async () => {
-    const balance = await get_balance(address);
+    const balance = await get_balance(new Address(address));
     // console.log(`balance: ${balance}`);
     assert(balance.to_big_number().toNumber() == 0, "Invalid value")
   })
