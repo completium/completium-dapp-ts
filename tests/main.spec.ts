@@ -30,7 +30,7 @@ describe('DApp', () => {
   it('exec_view', async () => {
     const res = await exec_view(new Address(address), "get_n", {prim: "Unit"}, {});
     // console.log(`exec_view: ${res}`);
-    assert(res.toNumber() == 0, "Invalid value")
+    assert(res.value.toNumber() == 0, "Invalid value")
   })
 
   it('get_storage', async () => {

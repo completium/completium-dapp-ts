@@ -1,4 +1,4 @@
-import { Address, CallParameter, Micheline, MichelineType, Tez } from "@completium/archetype-ts-types";
+import { Address, BatchResult, CallParameter, CallResult, DeployResult, Micheline, MichelineType, OriginateResult, Tez, ViewResult } from "@completium/archetype-ts-types";
 import { emitMicheline, MichelsonData, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
 import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
@@ -27,28 +27,15 @@ export const get_call_param = async (addr: string, entry: string, arg: Micheline
   }
 }
 
-export const call = async (addr: string, name: string, arg: Micheline, p: Parameters) => {
+export const call = async (addr: string, name: string, arg: Micheline, p: Parameters): Promise<CallResult> => {
   const amount = p.amount === undefined ? 0 : p.amount.to_big_number().toNumber();
   const fee = p.fee === undefined ? 0 : p.fee.to_big_number().toNumber()
 
   const transferParam = { to: addr, amount: amount, fee: fee > 0 ? fee : undefined, mutez: true, parameter: { entrypoint: name, value: arg } };
 
-  return new Promise((resolve, reject) => {
-    tezos?.wallet
-      .transfer(transferParam)
-      .send()
-      .then((op) => {
-        return op.confirmation(1).then(() => op);
-      })
-      .then((op) => {
-        return resolve(op)
-      })
-      .catch(
-        error => {
-          reject(error);
-        }
-      );
-  })
+  const op = await tezos?.wallet.transfer(transferParam).send();
+  await op?.confirmation(1);
+  return { ...op, dummy: 0 }
 }
 
 export const get_balance = async (addr: Address): Promise<Tez> => {
@@ -91,7 +78,7 @@ export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: M
   });
 }
 
-export const exec_view = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<any> => {
+export const exec_view = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<ViewResult> => {
   const c = await tezos?.contract.at(address.toString());
   if (c === undefined) {
     throw new Error(`Contract ${address.toString()} not found`);
@@ -100,10 +87,10 @@ export const exec_view = async (address: Address, entry: string, arg: Micheline,
   const a = c.contractViews[entry](input);
   const user_pkh = params.as ? params.as.toString() : 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb';
   const b = await a.executeView({ viewCaller: user_pkh })
-  return b
+  return {value: b, dummy: 0}
 }
 
-export const exec_batch = async (callParameters: CallParameter[]): Promise<any> => {
+export const exec_batch = async (callParameters: CallParameter[]): Promise<BatchResult> => {
   const paramsWithKinds: WalletParamsWithKind[] = callParameters.map(x => {
     return {
       kind: OpKind.TRANSACTION,
@@ -121,20 +108,16 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<any> 
   if (batch === undefined) {
     throw new Error("Error: Invalid batch");
   }
-  return new Promise(async (resolve, reject) => {
-    try {
-      const op = await batch.send();
-      // console.log(`Waiting for ${op.opHash} to be confirmed ...`);
-      await op.confirmation(1);
-      // console.log(`${op.opHash} confirmed ...`);
-      resolve(op)
-    } catch (error) {
-      reject(error);
-    }
-  });
+
+  const op = await batch.send();
+  await op?.confirmation(1);
+  return { ...op, dummy: 0 }
 }
 
-export const deploy = (path: string, parameters: any, params: any): Promise<any> => {
+export const deploy = (path: string, parameters: any, params: any): Promise<DeployResult> => {
   throw new Error("@completium/dapp-ts: 'deploy' not implemented.")
 }
 
+export const originate = async (path: string, storage: Micheline, p: Partial<Parameters>): Promise<OriginateResult> => {
+  throw new Error("@completium/dapp-ts: 'originate' not implemented.")
+}
