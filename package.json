@@ -1,6 +1,6 @@
 {
   "name": "@completium/dapp-ts",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -13,6 +13,7 @@
   "scripts": {
     "test": "ts-mocha --timeout 0 --slow 99999999999999999 ./tests/*.spec.ts",
     "build": "rm -rf ./build && npx tsc --outDir build",
+    "prepare": "rm -rf ./build && npx tsc --outDir build",
     "postpublish" : "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"
   },
   "repository": {
