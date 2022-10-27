@@ -1,7 +1,7 @@
-import { Address, CallParameter } from '@completium/archetype-ts-types';
+import { Address, Bytes, CallParameter, MichelineType } from '@completium/archetype-ts-types';
 import { Context, LegacyWalletProvider, Protocols, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
-import { call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_storage, set_binder_tezos_toolkit } from '../src';
+import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_storage, pack, set_binder_tezos_toolkit } from '../src';
 
 const assert = require('assert');
 
@@ -55,6 +55,19 @@ describe('DApp', () => {
     const value = await get_big_map_value(BigInt(80870), {int: "3"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
     // console.log(`value: ${value}`);
     assert(value === undefined, "Invalid value")
+  })
+
+  it('pack', async () => {
+    const data = {int: "2"};
+    const ty : MichelineType = {prim: "nat", annots: []};
+    const value = pack(data, ty);
+    assert(value.toString() === "050002", "Invalid value")
+  })
+
+  it('blake2b', async () => {
+    const data = new Bytes("050002");
+    const value = blake2b(data);
+    assert(value.toString() === "5d2525095b5382da2c9c295a739a189382cfaa2ebfa54e320d15bc6f178d6820", "Invalid value")
   })
 
 })

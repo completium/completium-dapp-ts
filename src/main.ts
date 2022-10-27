@@ -1,8 +1,9 @@
-import { Address, BatchResult, CallParameter, CallResult, DeployResult, Micheline, MichelineType, OriginateResult, Tez, ViewResult } from "@completium/archetype-ts-types";
+import { Address, ArchetypeTypeArg, BatchResult, Bytes, CallParameter, CallResult, DeployResult, Micheline, MichelineType, OriginateResult, Tez, ViewResult } from "@completium/archetype-ts-types";
 import { emitMicheline, MichelsonData, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
 import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
-import { encodeExpr } from '@taquito/utils';
+import { buf2hex, encodeExpr, hex2buf } from "@taquito/utils";
+import * as blakejs from 'blakejs';
 
 // global toolkit
 let tezos: TezosToolkit | undefined = undefined
@@ -87,7 +88,7 @@ export const exec_view = async (address: Address, entry: string, arg: Micheline,
   const a = c.contractViews[entry](input);
   const user_pkh = params.as ? params.as.toString() : 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb';
   const b = await a.executeView({ viewCaller: user_pkh })
-  return {value: b, dummy: 0}
+  return { value: b, dummy: 0 }
 }
 
 export const exec_batch = async (callParameters: CallParameter[]): Promise<BatchResult> => {
@@ -114,10 +115,32 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<Batch
   return { ...op, dummy: 0 }
 }
 
+export const pack = (obj: Micheline, typ?: MichelineType): Bytes => {
+  return new Bytes(packDataBytes((obj as MichelsonData), typ).bytes);
+}
+
+export const blake2b = (b: Bytes): Bytes => {
+  const blakeHash = blakejs.blake2b(hex2buf(b.toString()), undefined, 32);
+  const res = buf2hex((blakeHash.buffer as Buffer));
+  return new Bytes(res)
+}
+
 export const deploy = (path: string, parameters: any, params: any): Promise<DeployResult> => {
   throw new Error("@completium/dapp-ts: 'deploy' not implemented.")
 }
 
 export const originate = async (path: string, storage: Micheline, p: Partial<Parameters>): Promise<OriginateResult> => {
   throw new Error("@completium/dapp-ts: 'originate' not implemented.")
+}
+
+export const deploy_from_json = async (name: string, code: any, storage: Micheline): Promise<DeployResult> => {
+  throw new Error("@completium/dapp-ts: 'deploy_from_json' not implemented.")
+}
+
+export const deploy_callback = async (name: string, mt: MichelineType): Promise<DeployResult> => {
+  throw new Error("@completium/dapp-ts: 'deploy_callback' not implemented.")
+}
+
+export const get_callback_value = async <T extends ArchetypeTypeArg>(callback_addr: string, mich_to: (_: any) => T): Promise<T> => {
+  throw new Error("@completium/dapp-ts: 'get_callback_value' not implemented.")
 }
