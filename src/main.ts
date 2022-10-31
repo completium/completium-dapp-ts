@@ -1,5 +1,5 @@
 import { Address, ArchetypeTypeArg, BatchResult, Bytes, CallParameter, CallResult, DeployResult, Micheline, MichelineType, OriginateResult, Tez, ViewResult } from "@completium/archetype-ts-types";
-import { emitMicheline, MichelsonData, packDataBytes } from '@taquito/michel-codec';
+import { emitMicheline, MichelsonData, MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
 import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import { buf2hex, encodeExpr, hex2buf } from "@taquito/utils";
@@ -59,7 +59,7 @@ function toMichelsonData(m: Micheline): MichelsonData {
 
 export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: MichelineType, type_value: MichelineType): Promise<any> => {
   const d: MichelsonData = toMichelsonData(data);
-  const input = packDataBytes(d, type_key).bytes;
+  const input = packDataBytes(d, (type_key as MichelsonType)).bytes;
   const expr = encodeExpr(input);
 
   return new Promise(async (resolve, reject) => {
@@ -116,7 +116,7 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<Batch
 }
 
 export const pack = (obj: Micheline, typ?: MichelineType): Bytes => {
-  return new Bytes(packDataBytes((obj as MichelsonData), typ).bytes);
+  return new Bytes(packDataBytes((obj as MichelsonData), (typ as MichelsonType)).bytes);
 }
 
 export const blake2b = (b: Bytes): Bytes => {
