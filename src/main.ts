@@ -133,11 +133,11 @@ export const originate = async (path: string, storage: Micheline, p: Partial<Par
   throw new Error("@completium/dapp-ts: 'originate' not implemented.")
 }
 
-export const deploy_from_json = async (name: string, code: any, storage: Micheline): Promise<DeployResult> => {
+export const deploy_from_json = async (name: string, code: any, storage: Micheline, p: Partial<Parameters>): Promise<DeployResult> => {
   throw new Error("@completium/dapp-ts: 'deploy_from_json' not implemented.")
 }
 
-export const deploy_callback = async (name: string, mt: MichelineType): Promise<DeployResult> => {
+export const deploy_callback = async (name: string, mt: MichelineType, p: Partial<Parameters>): Promise<DeployResult> => {
   throw new Error("@completium/dapp-ts: 'deploy_callback' not implemented.")
 }
 
