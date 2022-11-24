@@ -1,6 +1,6 @@
 {
   "name": "@completium/dapp-ts",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/completium/completium-dapp-ts#readme",
   "dependencies": {
-    "@completium/archetype-ts-types": "^0.0.13",
+    "@completium/archetype-ts-types": "^0.0.14",
     "@taquito/michel-codec": "^14.0.0",
     "@taquito/michelson-encoder": "^14.0.0",
     "@taquito/taquito": "^14.0.0",
