@@ -5,11 +5,12 @@ import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, g
 
 const assert = require('assert');
 
-const endpoint = 'https://kathmandunet.ecadinfra.com';
-const address = 'KT1S2Vya2BvDGyQZRUe4d6zashzBNnN5iwh1';
+const endpoint = 'https://ghostnet.ecadinfra.com';
+const address = 'KT1VR4Rc3ovru3ogpaRu9qtubNLiHQUq54c6';
 const signer = new InMemorySigner('edskRgfNYuKgoMLobBPBh5GoSXxdnzjsqqTymQRoAALCzz94zxq5DR9h41NmFZkCWAzWZ9NdweXv8BD6hKEJmK9UYWcxK4pnct')
-const context : Context =  new Context(endpoint, signer, Protocols.PtKathman)
+const context : Context =  new Context(endpoint, signer, Protocols.PtLimaPtL)
 const tezos : TezosToolkit = new TezosToolkit(endpoint);
+const big_map_id = 225028
 
 describe('DApp', () => {
   it ('init', () => {
@@ -46,13 +47,13 @@ describe('DApp', () => {
   })
 
   it('get_big_map_value', async () => {
-    const value = await get_big_map_value(BigInt(80870), {int: "2"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
+    const value = await get_big_map_value(BigInt(big_map_id), {int: "2"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
     // console.log(`value: ${value}`);
     assert(value == "mystr", "Invalid value")
   })
 
   it('get_big_map_value with key not found', async () => {
-    const value = await get_big_map_value(BigInt(80870), {int: "3"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
+    const value = await get_big_map_value(BigInt(big_map_id), {int: "3"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
     // console.log(`value: ${value}`);
     assert(value === undefined, "Invalid value")
   })
