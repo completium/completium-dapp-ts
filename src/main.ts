@@ -36,7 +36,7 @@ export const call = async (addr: string, name: string, arg: Micheline, p: Parame
 
   const op = await tezos?.wallet.transfer(transferParam).send();
   await op?.confirmation(1);
-  return { ...op, dummy: 0 }
+  return { ...op, events: [], dummy: 0 }
 }
 
 export const get_balance = async (addr: Address): Promise<Tez> => {
@@ -112,7 +112,7 @@ export const exec_batch = async (callParameters: CallParameter[]): Promise<Batch
 
   const op = await batch.send();
   await op?.confirmation(1);
-  return { ...op, dummy: 0 }
+  return { ...op, events: [], dummy: 0 }
 }
 
 export const pack = (obj: Micheline, typ?: MichelineType): Bytes => {
