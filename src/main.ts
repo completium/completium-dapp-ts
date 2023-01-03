@@ -89,15 +89,19 @@ export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: M
 }
 
 export const exec_view = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<ViewResult> => {
-  const c = await tezos?.contract.at(address.toString());
-  if (c === undefined) {
-    throw new Error(`Contract ${address.toString()} not found`);
+  const chain_id = await tezos?.rpc.getChainId();
+
+  if (!chain_id) {
+    throw new Error("exec_view: cannot fetch chain_id")
   }
-  const input = emitMicheline(arg);
-  const a = c.contractViews[entry](input);
-  const user_pkh = params.as ? params.as.toString() : 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb';
-  const b = await a.executeView({ viewCaller: user_pkh })
-  return { value: b, dummy: 0 }
+  const res = await tezos?.rpc.runScriptView({
+    contract: address.toString(),
+    view: entry,
+    input: arg,
+    chain_id: chain_id,
+    source: params?.as?.toString()
+  });
+  return {value: res?.data, dummy: 0}
 }
 
 export const exec_batch = async (callParameters: CallParameter[]): Promise<BatchResult> => {
