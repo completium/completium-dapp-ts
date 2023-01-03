@@ -8,28 +8,28 @@ const assert = require('assert');
 const endpoint = 'https://ghostnet.ecadinfra.com';
 const address = 'KT1VR4Rc3ovru3ogpaRu9qtubNLiHQUq54c6';
 const signer = new InMemorySigner('edskRgfNYuKgoMLobBPBh5GoSXxdnzjsqqTymQRoAALCzz94zxq5DR9h41NmFZkCWAzWZ9NdweXv8BD6hKEJmK9UYWcxK4pnct')
-const context : Context =  new Context(endpoint, signer, Protocols.PtLimaPtL)
-const tezos : TezosToolkit = new TezosToolkit(endpoint);
+const context: Context = new Context(endpoint, signer, Protocols.PtLimaPtL)
+const tezos: TezosToolkit = new TezosToolkit(endpoint);
 const big_map_id = 225028
 
 describe('DApp', () => {
-  it ('init', () => {
+  it('init', () => {
     tezos.setWalletProvider(new LegacyWalletProvider(context));
     set_binder_tezos_toolkit(tezos);
   })
 
   it('call', async () => {
-    await call(address, "set_n", {int: "0"}, {})
+    await call(address, "set_n", { int: "0" }, {})
   })
 
   it('get_call_param & exec batch', async () => {
-    const c1 : CallParameter = await get_call_param(address, "set_n", {int: "0"}, {});
-    const c2 : CallParameter = await get_call_param(address, "size", {string: ""}, {});
+    const c1: CallParameter = await get_call_param(address, "set_n", { int: "0" }, {});
+    const c2: CallParameter = await get_call_param(address, "size", { string: "" }, {});
     await exec_batch([c1, c2]);
   })
 
   it('exec_view', async () => {
-    const res = await exec_view(new Address(address), "get_n", {prim: "Unit"}, {});
+    const res = await exec_view(new Address(address), "get_n", { prim: "Unit" }, {});
     assert(JSON.stringify(res.value) == `{"int":"0"}`, "Invalid value")
   })
 
@@ -51,25 +51,25 @@ describe('DApp', () => {
   })
 
   it('get_big_map_value', async () => {
-    const value = await get_big_map_value(BigInt(big_map_id), {int: "2"}, {prim: "nat", annots: []});
+    const value = await get_big_map_value(BigInt(big_map_id), { int: "2" }, { prim: "nat", annots: [] });
     assert(JSON.stringify(value) == `{"string":"mystr"}`);
   })
 
   it('get_big_map_value with value', async () => {
-    const value = await get_big_map_value(BigInt(big_map_id), {int: "2"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
+    const value = await get_big_map_value(BigInt(big_map_id), { int: "2" }, { prim: "nat", annots: [] }, { prim: "string", annots: [] });
     // console.log(`value: ${value}`);
     assert(value == "mystr", "Invalid value")
   })
 
   it('get_big_map_value with key not found', async () => {
-    const value = await get_big_map_value(BigInt(big_map_id), {int: "3"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
+    const value = await get_big_map_value(BigInt(big_map_id), { int: "3" }, { prim: "nat", annots: [] }, { prim: "string", annots: [] });
     // console.log(`value: ${value}`);
     assert(value === undefined, "Invalid value")
   })
 
   it('pack', async () => {
-    const data = {int: "2"};
-    const ty : MichelineType = {prim: "nat", annots: []};
+    const data = { int: "2" };
+    const ty: MichelineType = { prim: "nat", annots: [] };
     const value = pack(data, ty);
     assert(value.toString() === "050002", "Invalid value")
   })
@@ -81,3 +81,15 @@ describe('DApp', () => {
   })
 
 })
+
+// describe('Test', () => {
+//   it('init', () => {
+//     tezos.setWalletProvider(new LegacyWalletProvider(context));
+//     set_binder_tezos_toolkit(tezos);
+//   })
+
+//   it('exec_view', async () => {
+//     const res = await exec_view(new Address("KT1FcUNmyZ255yyfqWL3GC1AGqSY2vKqYwEg"), "already_responded", { int: "1" }, { as: new Address("tz1Lc2qBKEWCBeDU8npG6zCeCqpmaegRi6Jg") });
+//     console.log(JSON.stringify(res.value))
+//   })
+// })

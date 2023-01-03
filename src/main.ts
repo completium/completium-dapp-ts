@@ -99,9 +99,10 @@ export const exec_view = async (address: Address, entry: string, arg: Micheline,
     view: entry,
     input: arg,
     chain_id: chain_id,
-    source: params?.as?.toString()
+    payer: params.as?.toString(),
+    source: params.as?.toString()
   });
-  return {value: res?.data, dummy: 0}
+  return { value: res?.data, dummy: 0 }
 }
 
 export const exec_batch = async (callParameters: CallParameter[]): Promise<BatchResult> => {
