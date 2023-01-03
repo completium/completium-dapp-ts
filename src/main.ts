@@ -53,11 +53,16 @@ export const get_storage = async (addr: string): Promise<any> => {
   })
 }
 
+export const get_raw_storage = async (addr: string): Promise<Micheline> => {
+  const x = await tezos?.rpc.getStorage(addr);
+  return (x as Micheline)
+}
+
 function toMichelsonData(m: Micheline): MichelsonData {
   return (m as MichelsonData)
 }
 
-export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: MichelineType, type_value: MichelineType): Promise<any> => {
+export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: MichelineType, type_value?: MichelineType): Promise<any> => {
   const d: MichelsonData = toMichelsonData(data);
   const input = packDataBytes(d, (type_key as MichelsonType)).bytes;
   const expr = encodeExpr(input);
@@ -65,9 +70,13 @@ export const get_big_map_value = async (id: BigInt, data: Micheline, type_key: M
   return new Promise(async (resolve, reject) => {
     tezos?.rpc.getBigMapExpr(id.toString(), expr)
       .then(res => {
-        const schema = new Schema(type_value);
-        const data = schema.Execute(res);
-        resolve(data)
+        if (type_value) {
+          const schema = new Schema(type_value);
+          const data = schema.Execute(res);
+          resolve(data)
+        } else {
+          resolve(res)
+        }
       })
       .catch(x => {
         if (x.status == 404) {

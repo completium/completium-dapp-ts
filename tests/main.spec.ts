@@ -1,7 +1,7 @@
 import { Address, Bytes, CallParameter, MichelineType } from '@completium/archetype-ts-types';
 import { Context, LegacyWalletProvider, Protocols, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
-import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_storage, pack, set_binder_tezos_toolkit } from '../src';
+import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_raw_storage, get_storage, pack, set_binder_tezos_toolkit } from '../src';
 
 const assert = require('assert');
 
@@ -46,7 +46,17 @@ describe('DApp', () => {
     assert(balance.to_big_number().toNumber() == 0, "Invalid value")
   })
 
+  it('get_raw_storage', async () => {
+    const res = await get_raw_storage(address);
+    assert(JSON.stringify(res, null, 0) == `{"prim":"Pair","args":[{"int":"0"},{"int":"${big_map_id}"}]}`, "Invalid value")
+  })
+
   it('get_big_map_value', async () => {
+    const value = await get_big_map_value(BigInt(big_map_id), {int: "2"}, {prim: "nat", annots: []});
+    assert(JSON.stringify(value) == `{"string":"mystr"}`);
+  })
+
+  it('get_big_map_value with value', async () => {
     const value = await get_big_map_value(BigInt(big_map_id), {int: "2"}, {prim: "nat", annots: []}, {prim: "string", annots: []});
     // console.log(`value: ${value}`);
     assert(value == "mystr", "Invalid value")
