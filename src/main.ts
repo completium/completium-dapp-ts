@@ -36,7 +36,14 @@ export const call = async (addr: string, name: string, arg: Micheline, p: Parame
 
   const op = await tezos?.wallet.transfer(transferParam).send();
   await op?.confirmation(1);
-  return { ...op, events: [], dummy: 0 }
+  return {
+    ...op,
+    operation_hash: op?.opHash ?? "",
+    storage_size: 0,
+    consumed_gas: 0,
+    paid_storage_size_diff: 0,
+    events: []
+  }
 }
 
 export const get_balance = async (addr: Address): Promise<Tez> => {
