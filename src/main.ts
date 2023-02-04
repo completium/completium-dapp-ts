@@ -1,7 +1,7 @@
 import { Address, ArchetypeTypeArg, BatchResult, Bytes, CallParameter, CallResult, DeployResult, Micheline, MichelineType, OriginateResult, Tez, ViewResult } from "@completium/archetype-ts-types";
 import { emitMicheline, MichelsonData, MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
-import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
+import { OpKind, TezosToolkit, WalletOriginateParams, WalletParamsWithKind } from '@taquito/taquito';
 import { buf2hex, encodeExpr, hex2buf } from "@taquito/utils";
 import * as blakejs from 'blakejs';
 
@@ -150,8 +150,31 @@ export const deploy = (path: string, parameters: any, params: any): Promise<Depl
   throw new Error("@completium/dapp-ts: 'deploy' not implemented.")
 }
 
-export const originate = async (path: string, storage: Micheline, p: Partial<Parameters>): Promise<OriginateResult> => {
-  throw new Error("@completium/dapp-ts: 'originate' not implemented.")
+export const originate = async (code: Micheline, storage: Micheline, p: Parameters): Promise<DeployResult> => {
+  const amount = p.amount === undefined ? 0 : p.amount.to_big_number().toNumber();
+  const fee = p.fee === undefined ? 0 : p.fee.to_big_number().toNumber()
+
+  const originateParam: WalletOriginateParams = {
+    code: (code as object[]),
+    init: storage,
+    balance: amount,
+    fee: fee > 0 ? fee : undefined,
+    mutez: true,
+  };
+
+  const op = await tezos?.wallet.originate(originateParam).send();
+  const c = await op?.originationOperation();
+  const contracts = c?.metadata.operation_result.originated_contracts;
+  if (contracts) {
+    const address = contracts[0];
+    await op?.confirmation(1);
+    return {
+      ...op,
+      address: address
+    }
+  } else {
+    throw ("Adress not found")
+  }
 }
 
 export const deploy_from_json = async (name: string, code: any, storage: Micheline, p: Partial<Parameters>): Promise<DeployResult> => {

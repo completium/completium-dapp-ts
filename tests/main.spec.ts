@@ -1,7 +1,7 @@
-import { Address, Bytes, CallParameter, MichelineType } from '@completium/archetype-ts-types';
+import { Address, Bytes, CallParameter, Micheline, MichelineType } from '@completium/archetype-ts-types';
 import { Context, LegacyWalletProvider, Protocols, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
-import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_raw_storage, get_storage, pack, set_binder_tezos_toolkit } from '../src';
+import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_raw_storage, get_storage, originate, pack, set_binder_tezos_toolkit } from '../src';
 
 const assert = require('assert');
 
@@ -16,6 +16,36 @@ describe('DApp', () => {
   it('init', () => {
     tezos.setWalletProvider(new LegacyWalletProvider(context));
     set_binder_tezos_toolkit(tezos);
+  })
+
+  it('originate', async () => {
+    const code: Micheline = [
+      {
+        "prim": "storage",
+        "args": [
+          { "prim": "nat" }
+        ]
+      },
+      {
+        "prim": "parameter",
+        "args": [
+          { "prim": "unit" }
+        ]
+      },
+      {
+        "prim": "code",
+        "args": [
+          [ { "prim": "CDR" },
+          {
+            "prim": "NIL",
+            "args": [
+              { "prim": "operation" }
+            ]
+          },
+          { "prim": "PAIR" }]
+        ]
+      }];
+    const res = await originate(code, { int: "0" }, {});
   })
 
   it('call', async () => {
