@@ -5,7 +5,7 @@ import { blake2b, call, exec_batch, exec_getter, exec_view, get_balance, get_big
 
 const assert = require('assert');
 
-const endpoint = 'https://ghostnet.smartpy.io';
+const endpoint = 'https://ghostnet.tezos.marigold.dev';
 const address = 'KT1VR4Rc3ovru3ogpaRu9qtubNLiHQUq54c6';
 const signer = new InMemorySigner('edskRgfNYuKgoMLobBPBh5GoSXxdnzjsqqTymQRoAALCzz94zxq5DR9h41NmFZkCWAzWZ9NdweXv8BD6hKEJmK9UYWcxK4pnct')
 const context: Context = new Context(endpoint, signer, Protocols.PtLimaPtL)
