@@ -1,11 +1,11 @@
 import { Address, Bytes, CallParameter, Micheline, MichelineType } from '@completium/archetype-ts-types';
 import { Context, LegacyWalletProvider, Protocols, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
-import { blake2b, call, exec_batch, exec_view, get_balance, get_big_map_value, get_call_param, get_raw_storage, get_storage, originate, pack, set_binder_tezos_toolkit } from '../src';
+import { blake2b, call, exec_batch, exec_getter, exec_view, get_balance, get_big_map_value, get_call_param, get_raw_storage, get_storage, originate, pack, set_binder_tezos_toolkit } from '../src';
 
 const assert = require('assert');
 
-const endpoint = 'https://ghostnet.ecadinfra.com';
+const endpoint = 'https://ghostnet.smartpy.io';
 const address = 'KT1VR4Rc3ovru3ogpaRu9qtubNLiHQUq54c6';
 const signer = new InMemorySigner('edskRgfNYuKgoMLobBPBh5GoSXxdnzjsqqTymQRoAALCzz94zxq5DR9h41NmFZkCWAzWZ9NdweXv8BD6hKEJmK9UYWcxK4pnct')
 const context: Context = new Context(endpoint, signer, Protocols.PtLimaPtL)
@@ -60,6 +60,11 @@ describe('DApp', () => {
 
   it('exec_view', async () => {
     const res = await exec_view(new Address(address), "get_n", { prim: "Unit" }, {});
+    assert(JSON.stringify(res.value) == `{"int":"0"}`, "Invalid value")
+  })
+
+  it('exec_getter', async () => {
+    const res = await exec_getter(new Address(address), "tzip4_get_n", { prim: "Unit" }, {});
     assert(JSON.stringify(res.value) == `{"int":"0"}`, "Invalid value")
   })
 

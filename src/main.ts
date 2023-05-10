@@ -1,5 +1,5 @@
-import { Address, ArchetypeTypeArg, BatchResult, Bytes, CallParameter, CallResult, DeployResult, Micheline, MichelineType, OriginateResult, Tez, ViewResult } from "@completium/archetype-ts-types";
-import { emitMicheline, MichelsonData, MichelsonType, packDataBytes } from '@taquito/michel-codec';
+import { Address, ArchetypeTypeArg, BatchResult, Bytes, CallParameter, CallResult, DeployResult, Micheline, MichelineType, Tez, ViewResult, GetterResult } from "@completium/archetype-ts-types";
+import { MichelsonData, MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
 import { OpKind, TezosToolkit, WalletOriginateParams, WalletParamsWithKind } from '@taquito/taquito';
 import { buf2hex, encodeExpr, hex2buf } from "@taquito/utils";
@@ -110,6 +110,23 @@ export const exec_view = async (address: Address, entry: string, arg: Micheline,
     source: params.as?.toString()
   });
   return { value: res?.data, dummy: 0 }
+}
+
+export const exec_getter = async (address: Address, entry: string, arg: Micheline, params: Parameters): Promise<GetterResult> => {
+  const chain_id = await tezos?.rpc.getChainId();
+
+  if (!chain_id) {
+    throw new Error("exec_getter: cannot fetch chain_id")
+  }
+  const res = await tezos?.rpc.runView({
+    contract: address.toString(),
+    entrypoint: entry,
+    input: arg,
+    chain_id: chain_id,
+    payer: params.as?.toString(),
+    source: params.as?.toString()
+  });
+  return { value: res?.data, events: [], dummy: 0 }
 }
 
 export const exec_batch = async (callParameters: CallParameter[]): Promise<BatchResult> => {
