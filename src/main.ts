@@ -1,7 +1,7 @@
 import { Address, ArchetypeTypeArg, BatchResult, Bytes, CallParameter, CallResult, DeployResult, Micheline, MichelineType, Tez, ViewResult, GetterResult } from "@completium/archetype-ts-types";
 import { MichelsonData, MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { Schema } from '@taquito/michelson-encoder';
-import { OpKind, TezosToolkit, WalletOriginateParams, WalletParamsWithKind } from '@taquito/taquito';
+import { OpKind, TezosToolkit, WalletOriginateParams, WalletParamsWithKind, WalletTransferParams } from '@taquito/taquito';
 import { buf2hex, encodeExpr, hex2buf } from "@taquito/utils";
 import * as blakejs from 'blakejs';
 
@@ -28,11 +28,17 @@ export const get_call_param = async (addr: string, entry: string, arg: Micheline
   }
 }
 
-export const call = async (addr: string, name: string, arg: Micheline, p: Parameters): Promise<CallResult> => {
+export const to_wallet_transfer_params = (addr: string, name: string, arg: Micheline, p: Parameters): WalletTransferParams => {
   const amount = p.amount === undefined ? 0 : p.amount.to_big_number().toNumber();
   const fee = p.fee === undefined ? 0 : p.fee.to_big_number().toNumber()
 
   const transferParam = { to: addr, amount: amount, fee: fee > 0 ? fee : undefined, mutez: true, parameter: { entrypoint: name, value: arg } };
+
+  return transferParam
+}
+
+export const call = async (addr: string, name: string, arg: Micheline, p: Parameters): Promise<CallResult> => {
+  const transferParam = to_wallet_transfer_params(addr, name, arg, p)
 
   const op = await tezos?.wallet.transfer(transferParam).send();
   await op?.confirmation(1);
